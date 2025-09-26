@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Flip — AI Companion Mockup</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1320;--accent:#ff6b6b;--muted:#94a3b8;--glass: rgba(255,255,255,0.04)}
+    *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    body{margin:0;background:linear-gradient(180deg,#081126 0%, #071428 100%);color:#e6eef8;min-height:100vh}
+
+    /* Floating Flip icon */
+    .flip-btn{position:fixed;right:20px;bottom:24px;width:68px;height:68px;border-radius:999px;background:linear-gradient(135deg,#ffd6d6,#ff9b9b);box-shadow:0 6px 20px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:120}
+    .flip-btn img{width:44px;height:44px;object-fit:contain}
+
+    /* Drawer */
+    .drawer{position:fixed;left:0;right:0;bottom:0;height:78%;max-height:820px;background:linear-gradient(180deg,rgba(255,255,255,0.02), rgba(255,255,255,0.01));backdrop-filter: blur(8px);border-top-left-radius:16px;border-top-right-radius:16px;padding:18px;transform:translateY(110%);transition:transform .36s cubic-bezier(.22,.9,.3,1);z-index:110;border:1px solid rgba(255,255,255,0.03)}
+    .drawer.open{transform:translateY(0)}
+    .drawer .handle{width:44px;height:6px;background:#cbd5e1;opacity:.12;margin:6px auto;border-radius:6px}
+    .drawer .header{display:flex;gap:12px;align-items:center}
+    .avatar{width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,#fff1f2,#ffdada);display:flex;align-items:center;justify-content:center}
+    .avatar img{width:42px;height:42px}
+    .title{font-size:18px;font-weight:700}
+    .subtitle{color:var(--muted);font-size:13px}
+
+    /* Feature grid */
+    .features{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
+    .feature{background:var(--glass);padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);cursor:pointer}
+    .feature h4{margin:0;font-size:14px}
+    .feature p{margin:6px 0 0;font-size:12px;color:var(--muted)}
+
+    /* Steps area */
+    .step{margin-top:16px}
+    .options{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .option{background:#061226;border:1px solid rgba(255,255,255,0.02);padding:10px 12px;border-radius:10px;cursor:pointer;font-size:13px}
+    .option.active{outline:2px solid rgba(255,107,107,0.12);background:linear-gradient(90deg,rgba(255,107,107,0.04),transparent)}
+
+    /* Filters */
+    .filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .filter{background:rgba(255,255,255,0.02);padding:8px 10px;border-radius:8px;font-size:13px;border:1px solid rgba(255,255,255,0.02)}
+
+    /* Results */
+    .results{margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+    .card img{width:100%;height:140px;object-fit:cover;border-radius:8px}
+    .meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+    .price{font-weight:700}
+    .badge{font-size:11px;padding:4px 6px;border-radius:999px;background:rgba(255,255,255,0.03);color:#b7c7d7}
+
+    /* Hinglish toast */
+    .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:110px;background:#0b1320;padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 6px 16px rgba(0,0,0,0.5)}
+
+    /* Small screens tweak */
+    @media (max-width:640px){.drawer{height:88%}}
+
+  </style>
+</head>
+<body>
+
+  <!-- Floating flip button -->
+  <div class="flip-btn" id="flipBtn" title="Open Flip">
+    <img src="https://drive.google.com/uc?export=view&id=1ZlStZv8EmytTLhom4JpY6rFCQT9i7uCh" alt="Flip Icon">
+  </div>
+
+  <!-- Drawer -->
+  <div class="drawer" id="drawer">
+    <div class="handle"></div>
+    <div class="header">
+      <div class="avatar"><img src="https://drive.google.com/uc?export=view&id=1ZlStZv8EmytTLhom4JpY6rFCQT9i7uCh" alt="flip"></div>
+      <div>
+        <div class="title">Hi, I'm <span style="color:var(--accent)">Flip</span> — your shopping bestie</div>
+        <div class="subtitle">"See it. Share it. Shop it." Tell me what caught your eye 👀</div>
+      </div>
+    </div>
+
+    <div class="features" id="features">
+      <div class="feature" data-feature="find">
+        <h4>🔍 Flip Find</h4>
+        <p>Upload image/video/link to find exact or similar products</p>
+      </div>
+      <div class="feature" data-feature="lists">
+        <h4>📋 Flip Lists</h4>
+        <p>Auto-generated boards: Festivals, College, Home</p>
+      </div>
+      <div class="feature" data-feature="tips">
+        <h4>🎥 Flip Tips</h4>
+        <p>Short videos: fit, care & returns</p>
+      </div>
+      <div class="feature" data-feature="rewards">
+        <h4>🎯 Flip Rewards</h4>
+        <p>Quests, badges & shopping streaks</p>
+      </div>
+    </div>
+
+    <!-- Step area -->
+    <div class="step" id="stepArea">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong style="font-size:14px">What would you like to do today?</strong>
+        <button id="closeBtn" style="background:transparent;border:none;color:var(--muted);cursor:pointer">Close</button>
+      </div>
+
+      <!-- Flip Find inputs (default hidden when other features chosen) -->
+      <div id="findFlow" style="margin-top:12px">
+        <div style="font-size:13px;color:var(--muted)">How should I find it for you?</div>
+        <div class="options">
+          <div class="option active" data-input="image">📷 From Image</div>
+          <div class="option" data-input="video">🎥 From Video</div>
+          <div class="option" data-input="link">🔗 From Link</div>
+        </div>
+
+        <div class="filters" style="margin-top:12px">
+          <div class="filter">Category: <select id="categorySelect">
+            <option>Fashion - Women</option>
+            <option>Fashion - Men</option>
+            <option>Footwear</option>
+            <option>Home & Kitchen</option>
+            <option>Electronics</option>
+            <option>Furniture</option>
+          </select></div>
+          <div class="filter">Price: <select id="priceSelect"><option>Any</option><option>&lt; ₹1,000</option><option>₹1,000 - ₹5,000</option><option>&gt; ₹5,000</option></select></div>
+          <div class="filter"><label><input type="checkbox" id="assured"/> Flip-Assured</label></div>
+        </div>
+
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <input id="inputField" placeholder="Paste link or drop file" style="flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit" />
+          <button id="searchBtn" style="background:linear-gradient(90deg,var(--accent),#ff8f8f);border:none;padding:10px 14px;border-radius:10px;color:#081428;font-weight:700;cursor:pointer">Search</button>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div id="resultsArea" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+          <strong>Top results</strong>
+          <div class="subtitle">Showing best 5 matches</div>
+        </div>
+
+        <div class="results" id="results"></div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast" style="display:none">Ho gaya boss! Ye 6 options mil gaye 🎯</div>
+
+  <script>
+    const flipBtn = document.getElementById('flipBtn');
+    const drawer = document.getElementById('drawer');
+    const closeBtn = document.getElementById('closeBtn');
+    const features = document.getElementById('features');
+    const findFlow = document.getElementById('findFlow');
+    const resultsArea = document.getElementById('resultsArea');
+    const results = document.getElementById('results');
+    const toast = document.getElementById('toast');
+
+    flipBtn.addEventListener('click', ()=>{
+      drawer.classList.add('open');
+      showToast('Hi! I\'m Flip — tell me what to find 👀')
+    });
+    closeBtn.addEventListener('click', ()=>drawer.classList.remove('open'));
+
+    // Feature clicks
+    features.addEventListener('click', (e)=>{
+      const f = e.target.closest('.feature');
+      if(!f) return;
+      const key = f.dataset.feature;
+      if(key === 'find'){
+        findFlow.style.display = 'block'; resultsArea.style.display = 'none';
+      } else if(key === 'lists'){
+        findFlow.style.display = 'none'; resultsArea.style.display = 'block';
+        renderMockBoards();
+      } else if(key === 'tips'){
+        findFlow.style.display = 'none'; resultsArea.style.display = 'block';
+        renderMockTips();
+      } else if(key === 'rewards'){
+        findFlow.style.display = 'none'; resultsArea.style.display = 'block';
+        renderMockRewards();
+      }
+    })
+
+    // Options toggle
+    document.querySelectorAll('.option').forEach(opt=>opt.addEventListener('click', ()=>{
+      document.querySelectorAll('.option').forEach(o=>o.classList.remove('active'));
+      opt.classList.add('active');
+    }))
+
+    // Search button — mock search
+    document.getElementById('searchBtn').addEventListener('click', ()=>{
+      // quick validation
+      const q = document.getElementById('inputField').value.trim();
+      if(!q){
+        showToast('Bhaiya, pehle image/link daal do!');
+        return;
+      }
+      // perform mock search
+      findFlow.style.display = 'none'; resultsArea.style.display = 'block';
+      renderMockResults();
+      showToast('Bhaiya same to same nahi mila, but yeh 99% match hai!')
+    })
+
+    function showToast(msg,ms=2200){
+      toast.innerText = msg;
+      toast.style.display = 'block';
+      clearTimeout(toast._t);
+      toast._t = setTimeout(()=>{toast.style.display='none'}, ms);
+    }
+
+    function renderMockResults(){
+      results.innerHTML = '';
+      const sample = [
+        {title:'Floral Midi Dress - Brand A',price:'₹1,299',badge:'99% match',img:'https://images.unsplash.com/photo-1520975683949-0f0b4b37d2f3?auto=format&fit=crop&w=800&q=60'},
+        {title:'Summer Wrap Dress - Brand B',price:'₹999',badge:'95% match',img:'https://images.unsplash.com/photo-1495121605193-b116b5b09b23?auto=format&fit=crop&w=800&q=60'},
+        {title:'Ruffled Dress - Brand C',price:'₹1,499',badge:'92% match',img:'https://images.unsplash.com/photo-1520975918496-6a4f8b4b0f22?auto=format&fit=crop&w=800&q=60'},
+        {title:'A-line Dress - Brand D',price:'₹899',badge:'90% match',img:'https://images.unsplash.com/photo-1503342217505-b0a15effb06b?auto=format&fit=crop&w=800&q=60'},
+        {title:'Tiered Midi Dress - Brand E',price:'₹1,699',badge:'88% match',img:'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=800&q=60'}
+      ];
+
+      sample.forEach(item=>{
+        const c = document.createElement('div'); c.className='card';
+        c.innerHTML = `\n          <img src="${item.img}" alt="${item.title}">\n          <div style=\"margin-top:8px;font-size:14px;font-weight:600\">${item.title}</div>\n          <div class=\"meta\">\n            <div class=\"price\">${item.price}</div>\n            <div class=\"badge\">${item.badge}</div>\n          </div>\n          <div style=\"margin-top:8px;display:flex;gap:8px\">\n            <button style=\"flex:1;padding:8px;border-radius:8px;border:none;background:rgba(255,255,255,0.04);cursor:pointer\">View</button>\n            <button style=\"padding:8px;border-radius:8px;border:none;background:linear-gradient(90deg,var(--accent),#ff8f8f);color:#081428;cursor:pointer\">Buy</button>\n          </div>\n        `;
+        results.appendChild(c);
+      })
+
+      // 'Complete the look' mock
+      const look = document.createElement('div'); look.className='card';
+      look.innerHTML = `<div style="font-weight:700;margin-bottom:8px">Complete the look</div><div style="display:flex;gap:8px"><div style="flex:1;background:#061226;border-radius:8px;padding:8px;text-align:center">Shoes</div><div style="flex:1;background:#061226;border-radius:8px;padding:8px;text-align:center">Bag</div><div style="flex:1;background:#061226;border-radius:8px;padding:8px;text-align:center">Jewellery</div></div>`;
+      results.appendChild(look);
+    }
+
+    function renderMockBoards(){
+      results.innerHTML='';
+      const board = document.createElement('div'); board.className='card';
+      board.innerHTML = `<div style="font-weight:700;margin-bottom:8px">Festive Picks</div><div style="display:flex;gap:8px;flex-wrap:wrap"><div style="width:120px;height:120px;background:#061226;border-radius:8px"></div><div style="width:120px;height:120px;background:#061226;border-radius:8px"></div><div style="width:120px;height:120px;background:#061226;border-radius:8px"></div></div>`;
+      results.appendChild(board);
+    }
+
+    function renderMockTips(){
+      results.innerHTML='';
+      const tip = document.createElement('div'); tip.className='card';
+      tip.innerHTML = `<div style="font-weight:700;margin-bottom:8px">Fit Tip</div><div>"This dress has a snug fit — order 1 size up"</div><div style="margin-top:10px;font-size:12px;color:var(--muted)">Watch quick video</div>`;
+      results.appendChild(tip);
+    }
+
+    function renderMockRewards(){
+      results.innerHTML='';
+      const r = document.createElement('div'); r.className='card';
+      r.innerHTML = `<div style="font-weight:700;margin-bottom:8px">Rewards</div><div>You unlocked the 'Return-Smart' badge 🎖️</div><div style="margin-top:8px;font-size:13px;color:var(--muted)">Complete 1 creator product hunt to earn +50 coins</div>`;
+      results.appendChild(r);
+    }
+
+    // Close drawer if user taps outside (optional)
+    document.addEventListener('click',(e)=>{
+      if(!drawer.classList.contains('open')) return;
+      const inside = e.composedPath().includes(drawer) || e.composedPath().includes(flipBtn);
+      if(!inside){ /* keep open to avoid annoyance - left intentionally blank */ }
+    })
+
+  </script>
+</body>
+</html>
